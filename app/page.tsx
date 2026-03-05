@@ -6,105 +6,252 @@ const API = "https://pharmacy-auto-realestate-backend.onrender.com/api"
 
 export default function Home() {
 
-  const [properties,setProperties] = useState([])
-  const [vehicles,setVehicles] = useState([])
-  const [products,setProducts] = useState([])
+  const [properties,setProperties] = useState<any[]>([])
+  const [vehicles,setVehicles] = useState<any[]>([])
+  const [products,setProducts] = useState<any[]>([])
 
-  async function loadData(endpoint,setter){
+  const [loading,setLoading] = useState(true)
+
+  async function loadAssets(){
+
     try{
-      const res = await fetch(API + endpoint)
 
-      if(!res.ok){
-        throw new Error("Failed to fetch")
-      }
+      const [propRes,vehRes,prodRes] = await Promise.all([
+        fetch(API + "/properties"),
+        fetch(API + "/vehicles"),
+        fetch(API + "/products")
+      ])
 
-      const data = await res.json()
-      setter(data)
+      const props = await propRes.json()
+      const veh = await vehRes.json()
+      const prod = await prodRes.json()
+
+      setProperties(props)
+      setVehicles(veh)
+      setProducts(prod)
 
     }catch(err){
-      console.log("API Error:", err)
+
+      console.log("Error loading assets",err)
+
+    }finally{
+      setLoading(false)
     }
+
   }
 
   useEffect(()=>{
-
-    loadData("/properties",setProperties)
-    loadData("/vehicles",setVehicles)
-    loadData("/products",setProducts)
-
+    loadAssets()
   },[])
 
+  function img(url:string){
+
+    if(!url){
+      return "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+    }
+
+    return url.replace("/upload/","/upload/w_800,q_auto,f_auto/")
+  }
+
   return (
-    <main className="p-10">
 
-      <h1 className="text-4xl font-bold mb-6">
-        Multi-domain Real Estate Asset Management Infrastructure
-      </h1>
+<main className="min-h-screen bg-gray-950 text-white">
 
-      <p className="mb-10 text-gray-500">
-        Enterprise platform managing real estate, fleet assets, and income-generating infrastructure.
-      </p>
+{/* HEADER */}
 
+<header className="flex justify-between items-center p-6 border-b border-gray-800">
 
-      <section className="mb-16">
-        <h2 className="text-2xl font-semibold mb-4">
-          Residential & Commercial Portfolio
-        </h2>
+<h1 className="font-bold text-lg">
+Eyesightworks Infrastructure
+</h1>
 
-        <div className="grid grid-cols-3 gap-6">
+<nav className="flex gap-6 text-gray-400">
 
-          {properties.map((p)=>(
-            <div key={p.id} className="border p-4 rounded-xl">
-              <h3 className="font-semibold">{p.title}</h3>
-              <p className="text-blue-600">₦{p.price}</p>
-            </div>
-          ))}
+<a href="/portfolio" className="hover:text-white">
+Portfolio
+</a>
 
-        </div>
-      </section>
+<a href="/marketplace" className="hover:text-white">
+Marketplace
+</a>
 
+<a href="/enterprise" className="hover:text-white">
+Enterprise
+</a>
 
+<a
+href="https://frontend-eight-mocha-89.vercel.app/"
+target="_blank"
+className="hover:text-white"
+>
+Admin
+</a>
 
-      <section className="mb-16">
+</nav>
 
-        <h2 className="text-2xl font-semibold mb-4">
-          Fleet Infrastructure
-        </h2>
-
-        <div className="grid grid-cols-3 gap-6">
-
-          {vehicles.map((v)=>(
-            <div key={v.id} className="border p-4 rounded-xl">
-              <h3 className="font-semibold">{v.brand}</h3>
-              <p className="text-blue-600">₦{v.price}</p>
-            </div>
-          ))}
-
-        </div>
-
-      </section>
+</header>
 
 
+{/* HERO */}
 
-      <section>
+<section className="max-w-5xl mx-auto p-10">
 
-        <h2 className="text-2xl font-semibold mb-4">
-          Income Generating Facilities
-        </h2>
+<h1 className="text-4xl font-bold mb-6">
+Multi-domain Real Estate Asset Management Infrastructure
+</h1>
 
-        <div className="grid grid-cols-3 gap-6">
+<p className="text-gray-400 mb-10">
+Enterprise platform managing residential properties,
+commercial real estate, logistics fleets and
+income-generating infrastructure within a unified
+digital ecosystem.
+</p>
 
-          {products.map((p)=>(
-            <div key={p.id} className="border p-4 rounded-xl">
-              <h3 className="font-semibold">{p.name}</h3>
-              <p className="text-blue-600">₦{p.price}</p>
-            </div>
-          ))}
+<div className="flex gap-10 text-center">
 
-        </div>
+<div>
+<h3 className="text-2xl font-bold text-white">
+₦12B+
+</h3>
+<p className="text-gray-500">
+Assets Managed
+</p>
+</div>
 
-      </section>
+<div>
+<h3 className="text-2xl font-bold text-white">
+250+
+</h3>
+<p className="text-gray-500">
+Active Listings
+</p>
+</div>
 
-    </main>
+<div>
+<h3 className="text-2xl font-bold text-white">
+98%
+</h3>
+<p className="text-gray-500">
+Occupancy Rate
+</p>
+</div>
+
+</div>
+
+</section>
+
+
+{/* PROPERTIES */}
+
+<section id="portfolio" className="max-w-6xl mx-auto p-10">
+
+<h2 className="text-2xl font-semibold mb-6">
+Residential & Commercial Portfolio
+</h2>
+
+{loading && <p className="text-gray-500">Loading properties...</p>}
+
+<div className="grid md:grid-cols-3 gap-6">
+
+{properties.map((p:any)=>(
+<div key={p.id} className="bg-gray-900 p-4 rounded-xl">
+
+<img
+src={img(p.imageUrl)}
+className="rounded mb-4 w-full h-48 object-cover"
+/>
+
+<h3 className="font-semibold mb-1">
+{p.title}
+</h3>
+
+<p className="text-blue-400">
+₦{p.price}
+</p>
+
+</div>
+))}
+
+</div>
+
+</section>
+
+
+{/* VEHICLES */}
+
+<section id="fleet" className="max-w-6xl mx-auto p-10">
+
+<h2 className="text-2xl font-semibold mb-6">
+Fleet & Operational Infrastructure
+</h2>
+
+<div className="grid md:grid-cols-3 gap-6">
+
+{vehicles.map((v:any)=>(
+<div key={v.id} className="bg-gray-900 p-4 rounded-xl">
+
+<img
+src={img(v.imageUrl)}
+className="rounded mb-4 w-full h-48 object-cover"
+/>
+
+<h3 className="font-semibold mb-1">
+{v.brand}
+</h3>
+
+<p className="text-blue-400">
+₦{v.price}
+</p>
+
+</div>
+))}
+
+</div>
+
+</section>
+
+
+{/* PRODUCTS */}
+
+<section id="facilities" className="max-w-6xl mx-auto p-10">
+
+<h2 className="text-2xl font-semibold mb-6">
+Income-Generating Facilities
+</h2>
+
+<div className="grid md:grid-cols-3 gap-6">
+
+{products.map((p:any)=>(
+<div key={p.id} className="bg-gray-900 p-4 rounded-xl">
+
+<img
+src={img(p.imageUrl)}
+className="rounded mb-4 w-full h-48 object-cover"
+/>
+
+<h3 className="font-semibold mb-1">
+{p.name}
+</h3>
+
+<p className="text-blue-400">
+₦{p.price}
+</p>
+
+</div>
+))}
+
+</div>
+
+</section>
+
+
+<footer className="text-center text-gray-500 p-10 border-t border-gray-800">
+
+© 2026 Eyesightworks — Multi-domain Real Estate Infrastructure Platform
+
+</footer>
+
+</main>
+
   )
 }
