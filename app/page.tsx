@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-const API = "https://pharmacy-auto-realestate-backend.onrender.com/api"
+const API = process.env.NEXT_PUBLIC_API_URL
 
 export default function Home() {
 
@@ -16,11 +16,14 @@ export default function Home() {
 
     try{
 
-      const [propRes,vehRes,prodRes] = await Promise.all([
-        fetch(API + "/properties"),
-        fetch(API + "/vehicles"),
-        fetch(API + "/products")
-      ])
+      const propRes = await fetch(API + "/properties")
+      const vehRes = await fetch(API + "/vehicles")
+      const prodRes = await fetch(API + "/products")
+
+      // Error handling
+      if(!propRes.ok) throw new Error("Failed to load properties")
+      if(!vehRes.ok) throw new Error("Failed to load vehicles")
+      if(!prodRes.ok) throw new Error("Failed to load products")
 
       const props = await propRes.json()
       const veh = await vehRes.json()
@@ -32,10 +35,12 @@ export default function Home() {
 
     }catch(err){
 
-      console.log("Error loading assets",err)
+      console.error("Error loading assets:",err)
 
     }finally{
+
       setLoading(false)
+
     }
 
   }
@@ -44,20 +49,22 @@ export default function Home() {
     loadAssets()
   },[])
 
+  // Cloudinary optimization
   function img(url:string){
 
     if(!url){
       return "https://res.cloudinary.com/demo/image/upload/sample.jpg"
     }
 
-    return url.replace("/upload/","/upload/w_800,q_auto,f_auto/")
+    return url.replace(
+      "/upload/",
+      "/upload/w_800,q_auto,f_auto/"
+    )
   }
 
   return (
 
 <main className="min-h-screen bg-gray-950 text-white">
-
-{/* HEADER */}
 
 <header className="flex justify-between items-center p-6 border-b border-gray-800">
 
@@ -91,8 +98,6 @@ Admin
 
 </header>
 
-
-{/* HERO */}
 
 <section className="max-w-5xl mx-auto p-10">
 
@@ -141,9 +146,7 @@ Occupancy Rate
 </section>
 
 
-{/* PROPERTIES */}
-
-<section id="portfolio" className="max-w-6xl mx-auto p-10">
+<section className="max-w-6xl mx-auto p-10">
 
 <h2 className="text-2xl font-semibold mb-6">
 Residential & Commercial Portfolio
@@ -154,6 +157,7 @@ Residential & Commercial Portfolio
 <div className="grid md:grid-cols-3 gap-6">
 
 {properties.map((p:any)=>(
+
 <div key={p.id} className="bg-gray-900 p-4 rounded-xl">
 
 <img
@@ -170,6 +174,7 @@ className="rounded mb-4 w-full h-48 object-cover"
 </p>
 
 </div>
+
 ))}
 
 </div>
@@ -177,9 +182,7 @@ className="rounded mb-4 w-full h-48 object-cover"
 </section>
 
 
-{/* VEHICLES */}
-
-<section id="fleet" className="max-w-6xl mx-auto p-10">
+<section className="max-w-6xl mx-auto p-10">
 
 <h2 className="text-2xl font-semibold mb-6">
 Fleet & Operational Infrastructure
@@ -188,6 +191,7 @@ Fleet & Operational Infrastructure
 <div className="grid md:grid-cols-3 gap-6">
 
 {vehicles.map((v:any)=>(
+
 <div key={v.id} className="bg-gray-900 p-4 rounded-xl">
 
 <img
@@ -204,6 +208,7 @@ className="rounded mb-4 w-full h-48 object-cover"
 </p>
 
 </div>
+
 ))}
 
 </div>
@@ -211,9 +216,7 @@ className="rounded mb-4 w-full h-48 object-cover"
 </section>
 
 
-{/* PRODUCTS */}
-
-<section id="facilities" className="max-w-6xl mx-auto p-10">
+<section className="max-w-6xl mx-auto p-10">
 
 <h2 className="text-2xl font-semibold mb-6">
 Income-Generating Facilities
@@ -222,6 +225,7 @@ Income-Generating Facilities
 <div className="grid md:grid-cols-3 gap-6">
 
 {products.map((p:any)=>(
+
 <div key={p.id} className="bg-gray-900 p-4 rounded-xl">
 
 <img
@@ -238,6 +242,7 @@ className="rounded mb-4 w-full h-48 object-cover"
 </p>
 
 </div>
+
 ))}
 
 </div>

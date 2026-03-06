@@ -7,14 +7,26 @@ const API="https://pharmacy-auto-realestate-backend.onrender.com/api"
 export default function Portfolio(){
 
 const [properties,setProperties]=useState([])
+const [loading,setLoading]=useState(true)
 
 useEffect(()=>{
 
 fetch(API+"/properties")
 .then(res=>res.json())
-.then(data=>setProperties(data))
+.then(data=>{
+setProperties(data)
+setLoading(false)
+})
 
 },[])
+
+if(loading){
+return(
+<div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
+Loading properties...
+</div>
+)
+}
 
 return(
 
@@ -26,7 +38,7 @@ Residential & Commercial Portfolio
 
 <div className="grid md:grid-cols-3 gap-6">
 
-{properties.map((p)=>(
+{properties.map((p:any)=>(
 
 <div key={p.id} className="bg-gray-900 p-4 rounded-xl">
 
