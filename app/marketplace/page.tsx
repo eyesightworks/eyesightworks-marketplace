@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect,useState } from "react"
+import Image from "next/image"
 
 const API="https://pharmacy-auto-realestate-backend.onrender.com/api"
 
 export default function Marketplace(){
 
-const [products,setProducts]=useState([])
+const [products,setProducts]=useState<any[]>([])
 
 useEffect(()=>{
 
@@ -15,6 +16,19 @@ fetch(API+"/products")
 .then(data=>setProducts(data))
 
 },[])
+
+function img(url:string){
+
+ if(!url || url === ""){
+  return "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+ }
+
+ return url.replace(
+  "/upload/",
+  "/upload/w_800,q_auto,f_auto/"
+ )
+
+}
 
 return(
 
@@ -26,13 +40,16 @@ Infrastructure Marketplace
 
 <div className="grid md:grid-cols-3 gap-6">
 
-{products.map((p)=>(
+{products.map((p:any)=>(
 
 <div key={p.id} className="bg-gray-900 p-4 rounded-xl">
 
-<img
-src={p.imageUrl || "https://via.placeholder.com/600x400"}
-className="rounded mb-4"
+<Image
+src={img(p.imageUrl)}
+width={800}
+height={500}
+alt={p.name}
+className="rounded mb-4 w-full h-48 object-cover"
 />
 
 <h3 className="font-semibold">
