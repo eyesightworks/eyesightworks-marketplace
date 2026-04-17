@@ -1,33 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
 
 const API = "https://pharmacy-auto-realestate-backend.onrender.com/api";
 
+type Property = {
+  id: string;
+  title: string;
+  price: number;
+  imageUrl?: string;
+};
+
 export default function Home() {
-  const [properties, setProperties] = useState<any[]>([]);
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function loadAssets() {
     try {
-      const [propRes, vehRes, prodRes] = await Promise.all([
-        fetch(API + "/properties"),
-        fetch(API + "/vehicles"),
-        fetch(API + "/products"),
-      ]);
+      const res = await fetch(API + "/properties");
 
-      const props = await propRes.json();
-      const veh = await vehRes.json();
-      const prod = await prodRes.json();
+      if (!res.ok) {
+        throw new Error("Failed to fetch properties");
+      }
 
-      setProperties(props);
-      setVehicles(veh);
-      setProducts(prod);
+      const data = await res.json();
+      setProperties(data);
+
     } catch (err) {
-      console.log("Error loading assets", err);
+      console.log("Error loading properties", err);
+      setProperties([]); // ✅ prevent crash
     } finally {
       setLoading(false);
     }
@@ -47,9 +50,9 @@ export default function Home() {
         </h1>
 
         <nav className="flex gap-6 text-gray-400">
-          <a href="/">Home</a>
-          <a href="/portfolio">Portfolio</a>
-          <a href="/marketplace">Marketplace</a>
+          <Link href="/">Home</Link>
+          <Link href="/portfolio">Portfolio</Link>
+          <Link href="/marketplace">Marketplace</Link>
         </nav>
       </header>
 
@@ -59,7 +62,11 @@ export default function Home() {
           Residential & Commercial Portfolio
         </h2>
 
-        {loading && <p>Loading...</p>}
+        {loading && <p>Loading properties...</p>}
+
+        {!loading && properties.length === 0 && (
+          <p>Unable to load assets. Please try again later.</p>
+        )}
 
         <div className="grid md:grid-cols-3 gap-6">
           {properties.map((p) => (
