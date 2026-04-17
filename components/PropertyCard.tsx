@@ -2,6 +2,14 @@
 
 import Image from "next/image";
 
+type Property = {
+  id: string;
+  title: string;
+  price: number;
+  imageUrl?: string;
+};
+
+// ✅ Cloudinary optimizer
 function img(url?: string) {
   if (!url) {
     return "https://res.cloudinary.com/demo/image/upload/sample.jpg";
@@ -13,7 +21,7 @@ function img(url?: string) {
   );
 }
 
-export default function PropertyCard({ property }: any) {
+export default function PropertyCard({ property }: { property: Property }) {
   return (
     <div className="bg-gray-900 p-4 rounded-xl">
 
@@ -23,6 +31,7 @@ export default function PropertyCard({ property }: any) {
         height={500}
         alt={property.title}
         className="rounded mb-4 w-full h-48 object-cover"
+        unoptimized   // ✅ VERY IMPORTANT FIX
       />
 
       <h3 className="font-semibold">
