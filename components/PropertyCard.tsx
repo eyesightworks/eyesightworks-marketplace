@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 type Property = {
   id: string;
   title: string;
@@ -9,10 +7,9 @@ type Property = {
   imageUrl?: string;
 };
 
-// ✅ Cloudinary optimizer
 function img(url?: string) {
   if (!url) {
-    return "https://res.cloudinary.com/demo/image/upload/sample.jpg";
+    return "https://via.placeholder.com/600x400";
   }
 
   return url.replace(
@@ -25,21 +22,21 @@ export default function PropertyCard({ property }: { property: Property }) {
   return (
     <div className="bg-gray-900 p-4 rounded-xl">
 
-      <Image
+      <img
         src={img(property.imageUrl)}
-        width={800}
-        height={500}
         alt={property.title}
         className="rounded mb-4 w-full h-48 object-cover"
-        unoptimized   // ✅ VERY IMPORTANT FIX
+        onError={(e: any) => {
+          e.target.src = "https://via.placeholder.com/600x400";
+        }}
       />
 
       <h3 className="font-semibold">
-        {property.title}
+        {property.title || "Untitled Property"}
       </h3>
 
       <p className="text-blue-400">
-        ₦{property.price?.toLocaleString()}
+        ₦{property.price?.toLocaleString() || "0"}
       </p>
 
     </div>
